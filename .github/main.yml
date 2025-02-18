@@ -1,0 +1,27 @@
+# .github/workflows/pr-review.yml
+name: PR Review Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  ai_pr_review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run AI PR Review
+        run: npm run review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

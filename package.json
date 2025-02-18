@@ -1,9 +1,11 @@
 {
   "name": "pr-review-bot",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc src/index.ts"
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "review": "ts-node src/index.ts"
   },
   "keywords": [],
   "author": "",
