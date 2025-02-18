@@ -7,7 +7,6 @@ interface ReviewComment {
 }
 
 interface ReviewFeedback {
-    summary: string;
     inlineComments: ReviewComment[];
 }
 
@@ -25,14 +24,27 @@ export class AIClient {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are a code reviewer. Analyze the code diff and provide:
-                    1. A short contextual inline comments for each significant change
-                    Format your response as JSON with 'summary' and 'inlineComments' fields.
-                    For inlineComments, include 'path', 'position' (line number), and 'body'.`
+                        content: `You are a friendly, experienced software developer reviewing code changes for a teammate.
+                        Provide inline feedback with a conversational tone, as if you were talking to a colleague.
+                        Focus on clarity, helpfulness, and a human touch. Use phrases like:
+                        - 'Nice work here!'
+                        - 'I wonder if we could...'
+                        - 'What do you think about...'
+                        - 'This looks great, but maybe we could...'
+    
+                        Respond as a JSON object with an array called 'inlineComments', where each comment has:
+                          [
+                            {
+                              "path": "src/file.ts",
+                              "position": 3,
+                              "body": "Hey, what do you think about adding a test here?"
+                            }
+                          ]
+                        `
                     },
                     {
                         role: 'user',
-                        content: `Here is the code diff:\n${diff}`
+                        content: `Here's the code diff:\n${diff}`
                     }
                 ],
                 response_format: { type: "json_object" },
@@ -41,27 +53,16 @@ export class AIClient {
 
             const content = response.choices[0].message.content;
             if (!content) {
-                return {
-                    summary: "No feedback generated",
-                    inlineComments: []
-                };
+                return { inlineComments: [] };
             }
 
-            try {
-                const parsedResponse = JSON.parse(content);
-                return {
-                    summary: parsedResponse.summary || "No summary provided",
-                    inlineComments: Array.isArray(parsedResponse.inlineComments)
-                        ? parsedResponse.inlineComments
-                        : []
-                };
-            } catch (parseError) {
-                console.error('Failed to parse AI response:', content);
-                throw new Error('Invalid AI response format');
-            }
+            const parsedResponse = JSON.parse(content);
+            return {
+                inlineComments: Array.isArray(parsedResponse.inlineComments) ? parsedResponse.inlineComments : []
+            };
         } catch (error) {
             console.error('Error analyzing code diff:', error);
             throw error;
         }
     }
-}
+}    

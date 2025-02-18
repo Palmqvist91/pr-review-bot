@@ -16,7 +16,6 @@ if (!token || !openAiKey || !owner || !repo) {
 }
 
 const prNumber = Number(process.argv[2]);
-const dryRun = process.argv.includes('--dry-run');
 
 (async () => {
     const githubClient = new GitHubClient(token, owner, repo);
@@ -28,9 +27,5 @@ const dryRun = process.argv.includes('--dry-run');
         process.exit(1);
     }
 
-    if (dryRun) {
-        console.log('Running in dry-run mode - no comments will be posted');
-    }
-
-    await reviewProcessor.processReview(prNumber, dryRun);
+    await reviewProcessor.processReview(prNumber);
 })();

@@ -1,5 +1,6 @@
 import { GitHubClient } from './gitHubClient';
 import { AIClient } from './aiClient';
+import { calculateDiffPositions } from './calculateDiff';
 
 export class ReviewProcessor {
     constructor(
@@ -7,7 +8,7 @@ export class ReviewProcessor {
         private aiClient: AIClient
     ) { }
 
-    async processReview(prNumber: number, dryRun: boolean) {
+    async processReview(prNumber: number) {
         try {
             console.log(`Starting review for PR #${prNumber}`);
 
@@ -16,23 +17,23 @@ export class ReviewProcessor {
             const diff = await diffResponse.text();
 
             console.log('Analyzing diff with AI...');
-            const feedback = await this.aiClient.analyzeCodeDiff(diff);
+            const rawComments = await this.aiClient.analyzeCodeDiff(diff);
+            const inlineComments = calculateDiffPositions(diff, rawComments.inlineComments);
 
-            console.log('AI Feedback:', feedback);
+            console.log('Raw comments:', rawComments);
+            console.log('Processed inline comments:', inlineComments);
 
-            if (!dryRun) {
-                console.log('Creating review on PR...');
-                await this.githubClient.createReview(
-                    prNumber,
-                    feedback.summary,
-                    feedback.inlineComments
-                );
+            if (inlineComments.length === 0) {
+                console.log('No valid comments to post.');
+                return;
             }
+
+            console.log('Creating review on PR...');
+            await this.githubClient.createReview(prNumber, inlineComments);
 
             console.log('Review completed successfully!');
         } catch (error) {
             console.error('Error during review process:', error);
-            throw error;
         }
     }
 }
