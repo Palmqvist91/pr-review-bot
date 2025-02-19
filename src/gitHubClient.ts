@@ -54,32 +54,48 @@ export class GitHubClient {
         }
 
         const jwt = this.generateJWT();
-        const response = await axios.get(
-            `${this.baseUrl}/repos/${this.owner}/${this.repo}/installation`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${jwt}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'X-GitHub-Api-Version': '2022-11-28'
+
+        try {
+            console.log('Fetching installations...');
+            const installationsResponse = await axios.get(
+                `${this.baseUrl}/app/installations`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${jwt}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    }
                 }
+            );
+
+            console.log(`Found ${installationsResponse.data.length} installations`);
+            console.log('Looking for installation for:', this.owner);
+
+            const installation = installationsResponse.data.find((inst: any) =>
+                inst.account.login.toLowerCase() === this.owner.toLowerCase()
+            );
+
+            if (!installation) {
+                throw new Error(`No installation found for ${this.owner}/${this.repo}`);
             }
-        );
 
-        // TODO: Check if the response is valid
-
-        const tokenResponse = await axios.post(
-            `${this.baseUrl}/app/installations/${response.data.id}/access_tokens`,
-            {},
-            {
-                headers: {
-                    'Authorization': `Bearer ${jwt}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'X-GitHub-Api-Version': '2022-11-28'
+            const tokenResponse = await axios.post(
+                `${this.baseUrl}/app/installations/${installation.id}/access_tokens`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${jwt}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    }
                 }
-            }
-        );
+            );
 
-        return tokenResponse.data.token;
+            return tokenResponse.data.token;
+        } catch (error: any) {
+            console.error('Error getting installation token:', error.response?.data || error.message);
+            throw error;
+        }
     }
 
     private async request(method: string, path: string, data?: any) {
