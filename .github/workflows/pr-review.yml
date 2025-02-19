@@ -34,8 +34,8 @@ jobs:
       - name: Run PR Review
         if: github.event.pull_request.state == 'open'
         env:
-          GH_APP_ID: ${{ secrets.GITHUB_APP_ID }}
-          GH_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+          GH_APP_ID: ${{ secrets.GH_APP_ID }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
