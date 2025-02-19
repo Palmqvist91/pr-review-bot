@@ -12,9 +12,7 @@ export class ReviewProcessor {
         try {
             console.log(`Starting review for PR #${prNumber}`);
 
-            const diffUrl = await this.githubClient.getPRDiff(prNumber);
-            const diffResponse = await fetch(diffUrl);
-            const diff = await diffResponse.text();
+            const diff = await this.githubClient.getPRDiff(prNumber);
 
             console.log('Analyzing diff with AI...');
             const rawComments = await this.aiClient.analyzeCodeDiff(diff);

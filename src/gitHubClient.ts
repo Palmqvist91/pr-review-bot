@@ -1,49 +1,55 @@
 import axios from 'axios';
+import { createAppAuth } from '@octokit/auth-app';
+import { Octokit } from '@octokit/rest';
 
 export class GitHubClient {
-    private token: string;
-    private repo: string;
-    private owner: string;
+    private octokit: Octokit;
 
-    constructor(token: string, owner: string, repo: string) {
-        this.token = token;
-        this.owner = owner;
-        this.repo = repo;
+    constructor(
+        appId: string,
+        privateKey: string,
+        private owner: string,
+        private repo: string
+    ) {
+        this.octokit = new Octokit({
+            authStrategy: createAppAuth,
+            auth: {
+                appId,
+                privateKey,
+                installationId: process.env.GITHUB_INSTALLATION_ID
+            }
+        });
     }
 
     async getPRDiff(prNumber: number): Promise<string> {
         try {
-
-            const url = `https://api.github.com/repos/${this.owner}/${this.repo}/pulls/${prNumber}`;
-            const response = await axios.get(url, {
-                headers: { Authorization: `token ${this.token}` }
+            const { data } = await this.octokit.pulls.get({
+                owner: this.owner,
+                repo: this.repo,
+                pull_number: prNumber,
+                mediaType: {
+                    format: 'diff'
+                }
             });
-            return response.data.diff_url;
-        }
-        catch (error) {
+            return data as unknown as string;
+        } catch (error) {
             console.error('Error getting PR diff:', error);
             throw error;
         }
     }
 
     async createReview(prNumber: number, comments: Array<{ path: string; position: number; body: string }>) {
-        const url = `https://api.github.com/repos/${this.owner}/${this.repo}/pulls/${prNumber}/reviews`;
-
-        const payload = {
-            body: "Here's some friendly feedback from your AI PR bot! 😊",
-            event: "COMMENT",
-            comments: comments
-        };
-
         try {
-            await axios.post(url, payload, {
-                headers: {
-                    Authorization: `token ${this.token}`,
-                    Accept: "application/vnd.github.v3+json"
-                }
+            await this.octokit.pulls.createReview({
+                owner: this.owner,
+                repo: this.repo,
+                pull_number: prNumber,
+                body: "Here's some friendly feedback from your AI PR bot! 😊",
+                event: "COMMENT",
+                comments: comments
             });
-        } catch (error: any) {
-            console.error('Error creating review:', error.response?.data || error.message);
+        } catch (error) {
+            console.error('Error creating review:', error);
             throw error;
         }
     }
