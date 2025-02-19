@@ -1,18 +1,17 @@
-import dotenv from 'dotenv';
 import { GitHubClient } from './gitHubClient.js';
 import { AIClient } from './aiClient.js';
 import { ReviewProcessor } from './reviewProcessor.js';
 
-dotenv.config();
-
-//TODO: Create file structure for this project
-
 const openAiKey = process.env.OPENAI_API_KEY;
-const owner = process.env.GITHUB_OWNER || process.env.REPO_OWNER;
-const repo = process.env.GITHUB_REPO || process.env.REPO_NAME;
+const owner = process.env.GITHUB_REPOSITORY_OWNER;
+const repo = process.env.GITHUB_REPOSITORY?.split('/')[1];
 
 if (!openAiKey || !owner || !repo) {
-    console.error('Environment variables are missing! Please check the .env file or GitHub Secrets.');
+    console.error('GitHub Secrets saknas!');
+    console.error('Se till att följande secrets är konfigurerade i GitHub repository:');
+    console.error('- OPENAI_API_KEY');
+    console.error('- GH_APP_ID');
+    console.error('- GH_APP_PRIVATE_KEY');
     process.exit(1);
 }
 

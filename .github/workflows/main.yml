@@ -1,29 +1,26 @@
-# .github/workflows/pr-review.yml
-name: PR Review Bot
+name: PR Review
 
 on:
   pull_request:
     types: [opened, synchronize]
 
 jobs:
-  ai_pr_review:
+  review:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run AI PR Review
-        run: npm run review ${{ github.event.pull_request.number }}
+      - name: Run PR review
         env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GH_APP_ID: ${{ secrets.GH_APP_ID }}
           GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
-          GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_REPO: ${{ github.event.repository.name }}
+        run: npm run review ${{ github.event.pull_request.number }}
