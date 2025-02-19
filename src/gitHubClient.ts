@@ -65,6 +65,8 @@ export class GitHubClient {
             }
         );
 
+        console.log(response.data);
+
         const tokenResponse = await axios.post(
             `${this.baseUrl}/app/installations/${response.data.id}/access_tokens`,
             {},
@@ -108,6 +110,8 @@ export class GitHubClient {
         const diffResponse = await axios.get(prData.diff_url, {
             headers: { 'Accept': 'application/vnd.github.v3.diff' }
         });
+
+        console.log(diffResponse.data);
         return diffResponse.data;
     }
 
