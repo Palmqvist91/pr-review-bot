@@ -121,13 +121,39 @@ export class GitHubClient {
     }
 
     async getPRDiff(prNumber: number): Promise<string> {
-        const path = `/repos/${this.owner}/${this.repo}/pulls/${prNumber}`;
-        const prData = await this.request('GET', path);
-        const diffResponse = await axios.get(prData.diff_url, {
-            headers: { 'Accept': 'application/vnd.github.v3.diff' }
-        });
+        try {
+            console.log(`Fetching PR #${prNumber} data...`);
+            console.log(`Owner: ${this.owner}, Repo: ${this.repo}`);
 
-        return diffResponse.data;
+            const path = `/repos/${this.owner}/${this.repo}/pulls/${prNumber}`;
+            console.log('Making request to:', `${this.baseUrl}${path}`);
+
+            const prData = await this.request('GET', path);
+            console.log('PR data:', {
+                number: prData.number,
+                state: prData.state,
+                title: prData.title,
+                diff_url: prData.diff_url
+            });
+
+            console.log('Fetching diff from:', prData.diff_url);
+            const diffResponse = await axios.get(prData.diff_url, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3.diff',
+                    'Authorization': `Bearer ${this.token || await this.getInstallationToken()}`
+                }
+            });
+
+            return diffResponse.data;
+        } catch (error: any) {
+            console.error('Error details:', {
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                headers: error.response?.headers
+            });
+            throw error;
+        }
     }
 
     async createReview(prNumber: number, comments: Array<{ path: string; position: number; body: string }>) {
