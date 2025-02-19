@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
-import { GitHubClient } from './gitHubClient';
-import { AIClient } from './aiClient';
-import { ReviewProcessor } from './reviewProcessor';
+import { GitHubClient } from './gitHubClient.js';
+import { AIClient } from './aiClient.js';
+import { ReviewProcessor } from './reviewProcessor.js';
 
 dotenv.config();
 
