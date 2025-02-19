@@ -7,7 +7,7 @@ export class ReviewProcessor {
         private githubClient: GitHubClient,
         private aiClient: AIClient
     ) {
-        this.githubClient = new GitHubClient();
+        this.githubClient = new GitHubClient(process.env.GITHUB_OWNER as string, process.env.GITHUB_REPO as string);
         this.aiClient = new AIClient(process.env.OPENAI_API_KEY as string);
     }
 
