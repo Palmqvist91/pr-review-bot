@@ -1,0 +1,44 @@
+name: PR Review Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Debug PR Info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "PR number: ${{ github.event.pull_request.number }}"
+          echo "PR title: ${{ github.event.pull_request.title }}"
+          echo "PR state: ${{ github.event.pull_request.state }}"
+          echo "PR base: ${{ github.event.pull_request.base.ref }}"
+          echo "PR head: ${{ github.event.pull_request.head.ref }}"
+        
+      - name: Run PR Review
+        if: github.event.pull_request.state == 'open'
+        env:
+          GH_APP_ID: ${{ secrets.GITHUB_APP_ID }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          echo "Starting review for PR #${{ github.event.pull_request.number }}"
+          npm run review ${{ github.event.pull_request.number }}
