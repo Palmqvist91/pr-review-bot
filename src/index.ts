@@ -5,27 +5,26 @@ import { ReviewProcessor } from './reviewProcessor';
 
 dotenv.config();
 
-const token = process.env.GITHUB_TOKEN;
 const openAiKey = process.env.OPENAI_API_KEY;
-const owner = process.env.REPO_OWNER;
-const repo = process.env.REPO_NAME;
+const owner = process.env.GITHUB_OWNER || process.env.REPO_OWNER;
+const repo = process.env.GITHUB_REPO || process.env.REPO_NAME;
 
-if (!token || !openAiKey || !owner || !repo) {
-    console.error('Environment variables are missing! Please check the .env file.');
+if (!openAiKey || !owner || !repo) {
+    console.error('Environment variables are missing! Please check the .env file or GitHub Secrets.');
     process.exit(1);
 }
 
 const prNumber = Number(process.argv[2]);
 
 (async () => {
-    const githubClient = new GitHubClient(token, owner, repo);
-    const aiClient = new AIClient(openAiKey);
-    const reviewProcessor = new ReviewProcessor(githubClient, aiClient);
-
     if (!prNumber) {
         console.error('PR number must be provided!');
         process.exit(1);
     }
+
+    const githubClient = new GitHubClient(owner, repo);
+    const aiClient = new AIClient(openAiKey);
+    const reviewProcessor = new ReviewProcessor(githubClient, aiClient);
 
     await reviewProcessor.processReview(prNumber);
 })();
