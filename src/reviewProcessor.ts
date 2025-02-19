@@ -6,7 +6,10 @@ export class ReviewProcessor {
     constructor(
         private githubClient: GitHubClient,
         private aiClient: AIClient
-    ) { }
+    ) {
+        this.githubClient = new GitHubClient();
+        this.aiClient = new AIClient(process.env.OPENAI_API_KEY as string);
+    }
 
     async processReview(prNumber: number) {
         try {

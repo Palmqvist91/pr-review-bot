@@ -1,3 +1,5 @@
+//TODO: Move this to a util file
+
 interface ReviewComment {
     path: string;
     position: number;

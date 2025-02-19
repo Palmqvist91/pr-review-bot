@@ -5,6 +5,8 @@ import { ReviewProcessor } from './reviewProcessor';
 
 dotenv.config();
 
+//TODO: Create file structure for this project
+
 const openAiKey = process.env.OPENAI_API_KEY;
 const owner = process.env.GITHUB_OWNER || process.env.REPO_OWNER;
 const repo = process.env.GITHUB_REPO || process.env.REPO_NAME;
