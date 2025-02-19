@@ -1,6 +1,6 @@
-import { GitHubClient } from './gitHubClient';
-import { AIClient } from './aiClient';
-import { calculateDiffPositions } from './calculateDiff';
+import { GitHubClient } from './gitHubClient.js';
+import { AIClient } from './aiClient.js';
+import { calculateDiffPositions } from './calculateDiff.js';
 
 export class ReviewProcessor {
     constructor(
