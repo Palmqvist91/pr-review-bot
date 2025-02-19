@@ -11,6 +11,8 @@ export class ReviewProcessor {
         this.aiClient = new AIClient(process.env.OPENAI_API_KEY as string);
     }
 
+    // TODO: Add a method to get the installation token
+
     async processReview(prNumber: number) {
         try {
             console.log(`Starting review for PR #${prNumber}`);
