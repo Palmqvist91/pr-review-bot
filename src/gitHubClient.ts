@@ -26,6 +26,7 @@ export class GitHubClient {
             auth: {
                 appId: Number(appId),
                 privateKey,
+                installationId: null,
             }
         });
     }
@@ -35,12 +36,25 @@ export class GitHubClient {
 
         try {
             const { data: installations } = await this.octokit.request("GET /app/installations");
+            const installation = installations.find(
+                inst => inst.account?.login?.toLowerCase() === this.owner.toLowerCase()
+            );
 
-            if (installations.length === 0) {
-                throw new Error("No installations found for the GitHub App.");
+            if (!installation) {
+                throw new Error(`No installation found for owner: ${this.owner}`);
             }
 
-            this.installationId = installations[0].id;
+            this.installationId = installation.id;
+
+            this.octokit = new Octokit({
+                authStrategy: createAppAuth,
+                auth: {
+                    appId: Number(process.env.GH_APP_ID),
+                    privateKey: process.env.GH_APP_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+                    installationId: this.installationId,
+                }
+            });
+
             console.log("Using Installation ID:", this.installationId);
             return this.installationId;
         } catch (error) {
