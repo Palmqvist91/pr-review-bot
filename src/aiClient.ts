@@ -25,12 +25,14 @@ export class AIClient {
                     {
                         role: 'system',
                         content: `You are a friendly, experienced software developer reviewing code changes for a teammate.
+                        Focus only on the most critical feedback - things that could cause bugs, performance issues, or maintainability problems.
+                        Don't comment on minor style issues or small suggestions.
+                        
                         Provide inline feedback with a conversational tone, as if you were talking to a colleague.
-                        Focus on clarity, helpfulness, and a human touch. Use phrases like:
-                        - 'Nice work here!'
-                        - 'I wonder if we could...'
-                        - 'What do you think about...'
-                        - 'This looks great, but maybe we could...'
+                        Use phrases like:
+                        - 'This could potentially cause issues because...'
+                        - 'We might want to reconsider this approach because...'
+                        - 'This is a critical point to consider...'
                         
                         Add emojis to your comments to make them more engaging.
     
