@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 
@@ -11,12 +10,17 @@ export class GitHubClient {
         private owner: string,
         private repo: string
     ) {
+        const installationId = process.env.GITHUB_INSTALLATION_ID;
+        if (!installationId) {
+            throw new Error('GITHUB_INSTALLATION_ID is required');
+        }
+
         this.octokit = new Octokit({
             authStrategy: createAppAuth,
             auth: {
                 appId,
                 privateKey,
-                installationId: process.env.GITHUB_INSTALLATION_ID
+                installationId
             }
         });
     }
@@ -31,7 +35,12 @@ export class GitHubClient {
                     format: 'diff'
                 }
             });
-            return data as unknown as string;
+
+            if (typeof data !== 'string') {
+                throw new Error('Unexpected response format from GitHub API');
+            }
+
+            return data;
         } catch (error) {
             console.error('Error getting PR diff:', error);
             throw error;
@@ -46,7 +55,11 @@ export class GitHubClient {
                 pull_number: prNumber,
                 body: "Here's some friendly feedback from your AI PR bot! 😊",
                 event: "COMMENT",
-                comments: comments
+                comments: comments.map(({ path, position, body }) => ({
+                    path,
+                    position,
+                    body
+                }))
             });
         } catch (error) {
             console.error('Error creating review:', error);
