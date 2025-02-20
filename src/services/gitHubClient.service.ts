@@ -10,9 +10,9 @@ export class GitHubClient {
         private owner: string,
         private repo: string
     ) {
-        const installationId = process.env.GITHUB_INSTALLATION_ID;
+        const installationId = process.env.GH_INSTALLATION_ID;
         if (!installationId) {
-            throw new Error('GITHUB_INSTALLATION_ID is required');
+            throw new Error('GH_INSTALLATION_ID is required');
         }
 
         this.octokit = new Octokit({
