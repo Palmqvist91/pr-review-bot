@@ -1,6 +1,6 @@
 import { GitHubClient } from './gitHubClient';
 import { AIClient } from './aiClient';
-import { calculateDiffPositions } from './calculateDiff';
+import { calculateDiffPositions, isValidDiff } from './calculateDiff';
 
 export class ReviewProcessor {
     constructor(
@@ -13,21 +13,25 @@ export class ReviewProcessor {
             console.log(`Starting review for PR #${prNumber}`);
 
             const diff = await this.githubClient.getPRDiff(prNumber);
+            if (!isValidDiff(diff)) {
+                console.warn('Invalid diff format received');
+                return;
+            }
 
             console.log('Analyzing diff with AI...');
             const rawComments = await this.aiClient.analyzeCodeDiff(diff);
-            const inlineComments = calculateDiffPositions(diff, rawComments.inlineComments);
+            const validComments = calculateDiffPositions(diff, rawComments.inlineComments);
 
             console.log('Raw comments:', rawComments);
-            console.log('Processed inline comments:', inlineComments);
+            console.log('Processed inline comments:', validComments);
 
-            if (inlineComments.length === 0) {
+            if (validComments.length === 0) {
                 console.log('No valid comments to post.');
                 return;
             }
 
             console.log('Creating review on PR...');
-            await this.githubClient.createReview(prNumber, inlineComments);
+            await this.githubClient.createReview(prNumber, validComments);
 
             console.log('Review completed successfully!');
         } catch (error) {
