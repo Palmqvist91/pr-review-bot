@@ -1,14 +1,5 @@
 import OpenAI from 'openai';
-
-interface ReviewComment {
-    path: string;
-    position: number;
-    body: string;
-}
-
-interface ReviewFeedback {
-    inlineComments: ReviewComment[];
-}
+import { ReviewFeedback } from '../types/index.types';
 
 export class AIClient {
     private client: OpenAI;

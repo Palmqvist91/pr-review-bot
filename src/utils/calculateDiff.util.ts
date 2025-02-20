@@ -1,17 +1,4 @@
-interface ReviewComment {
-    path: string;
-    position: number;
-    body: string;
-    side?: 'LEFT' | 'RIGHT';
-}
-
-interface DiffPosition {
-    position: number;
-    type: 'add' | 'remove' | 'context';
-    line: string;
-    originalLine?: number;
-    newLine?: number;
-}
+import { ReviewComment, DiffPosition } from '../types/index.types';
 
 export function calculateDiffPositions(diff: string, comments: ReviewComment[]): ReviewComment[] {
     if (!diff || !comments.length) {
