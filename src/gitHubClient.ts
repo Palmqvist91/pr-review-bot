@@ -11,12 +11,17 @@ export class GitHubClient {
         private owner: string,
         private repo: string
     ) {
+        const installationId = process.env.GITHUB_INSTALLATION_ID;
+        if (!installationId) {
+            throw new Error('GITHUB_INSTALLATION_ID is required');
+        }
+
         this.octokit = new Octokit({
             authStrategy: createAppAuth,
             auth: {
                 appId,
                 privateKey,
-                installationId: process.env.GITHUB_INSTALLATION_ID
+                installationId
             }
         });
     }
@@ -31,14 +36,19 @@ export class GitHubClient {
                     format: 'diff'
                 }
             });
-            return data as unknown as string;
+
+            if (typeof data !== 'string') {
+                throw new Error('Unexpected response format from GitHub API');
+            }
+
+            return data;
         } catch (error) {
             console.error('Error getting PR diff:', error);
             throw error;
         }
     }
 
-    async createReview(prNumber: number, comments: Array<{ path: string; position: number; body: string; side?: 'LEFT' | 'RIGHT' }>) {
+    async createReview(prNumber: number, comments: Array<{ path: string; position: number; body: string }>) {
         try {
             await this.octokit.pulls.createReview({
                 owner: this.owner,

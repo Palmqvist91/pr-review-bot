@@ -2,12 +2,15 @@ interface ReviewComment {
     path: string;
     position: number;
     body: string;
+    side?: 'LEFT' | 'RIGHT';
 }
 
 interface DiffPosition {
     position: number;
     type: 'add' | 'remove' | 'context';
     line: string;
+    originalLine?: number;
+    newLine?: number;
 }
 
 export function calculateDiffPositions(diff: string, comments: ReviewComment[]): ReviewComment[] {
@@ -19,10 +22,11 @@ export function calculateDiffPositions(diff: string, comments: ReviewComment[]):
     let position = 0;
     const validComments: ReviewComment[] = [];
     const processedPositions = new Set<number>();
-    const diffPositions: DiffPosition[] = [];
+    const diffPositionsMap = new Map<number, DiffPosition>();
     let isInDiffSection = false;
+    let originalLine = 0;
+    let newLine = 0;
 
-    // Bygg först upp en mappning av positioner till radtyper
     for (const line of lines) {
         if (!line.trim()) continue;
 
@@ -35,36 +39,56 @@ export function calculateDiffPositions(diff: string, comments: ReviewComment[]):
             continue;
         }
 
-        // Hoppa över hunk-huvuden
         if (line.startsWith('@@')) {
+            const match = line.match(/@@ -(\d+),?\d* \+(\d+),?\d* @@/);
+            if (match) {
+                originalLine = parseInt(match[1], 10);
+                newLine = parseInt(match[2], 10);
+            }
             continue;
         }
 
         if (isInDiffSection) {
             if (line.startsWith('+')) {
-                diffPositions.push({ position: position, type: 'add', line });
+                diffPositionsMap.set(position, {
+                    position,
+                    type: 'add',
+                    line,
+                    newLine: newLine++
+                });
                 position++;
             } else if (line.startsWith('-')) {
-                diffPositions.push({ position: position, type: 'remove', line });
-                position++;  // Nu ökar vi position även för borttagna rader
+                diffPositionsMap.set(position, {
+                    position,
+                    type: 'remove',
+                    line,
+                    originalLine: originalLine++
+                });
+                position++;
             } else {
-                diffPositions.push({ position: position, type: 'context', line });
+                diffPositionsMap.set(position, {
+                    position,
+                    type: 'context',
+                    line,
+                    originalLine: originalLine++,
+                    newLine: newLine++
+                });
                 position++;
             }
         }
     }
 
-    // Matcha kommentarer med rätt position och side
     for (const comment of comments) {
         if (!processedPositions.has(comment.position)) {
-            const diffPosition = diffPositions.find(dp => dp.position === comment.position);
+            const diffPosition = diffPositionsMap.get(comment.position);
             if (diffPosition) {
-                const updatedComment = {
+                validComments.push({
                     ...comment,
                     side: diffPosition.type === 'remove' ? 'LEFT' : 'RIGHT'
-                };
-                validComments.push(updatedComment);
+                });
                 processedPositions.add(comment.position);
+            } else {
+                console.warn(`Comment position ${comment.position} not found in diff`);
             }
         }
     }
@@ -72,7 +96,6 @@ export function calculateDiffPositions(diff: string, comments: ReviewComment[]):
     return validComments;
 }
 
-// Hjälpfunktion för att validera diff-format
 export function isValidDiff(diff: string): boolean {
     if (!diff) return false;
 
