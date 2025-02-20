@@ -5,9 +5,9 @@ import { ReviewProcessor } from './services/reviewProcessor.service';
 
 dotenv.config();
 
-const appId = process.env.GITHUB_APP_ID;
-const privateKey = process.env.GITHUB_APP_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const installationId = process.env.GITHUB_INSTALLATION_ID;
+const appId = process.env.GH_APP_ID;
+const privateKey = process.env.GH_APP_PRIVATE_KEY?.replace(/\\n/g, '\n');
+const installationId = process.env.GH_INSTALLATION_ID;
 const openAiKey = process.env.OPENAI_API_KEY;
 const owner = process.env.REPO_OWNER;
 const repo = process.env.REPO_NAME;
