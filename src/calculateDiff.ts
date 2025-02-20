@@ -7,6 +7,7 @@ interface ReviewComment {
 interface DiffPosition {
     position: number;
     type: 'add' | 'remove' | 'context';
+    line: string;
 }
 
 export function calculateDiffPositions(diff: string, comments: ReviewComment[]): ReviewComment[] {
@@ -18,46 +19,52 @@ export function calculateDiffPositions(diff: string, comments: ReviewComment[]):
     let position = 0;
     const validComments: ReviewComment[] = [];
     const processedPositions = new Set<number>();
-
-    // Håller reda på om vi är i en diff-sektion
+    const diffPositions: DiffPosition[] = [];
     let isInDiffSection = false;
 
+    // Bygg först upp en mappning av positioner till radtyper
     for (const line of lines) {
-        // Hoppa över tomma rader
-        if (!line.trim()) {
-            continue;
-        }
+        if (!line.trim()) continue;
 
-        // Kontrollera om vi är i en ny diff-sektion
         if (line.startsWith('diff --git') || line.startsWith('index ')) {
             isInDiffSection = true;
             continue;
         }
 
-        // Hoppa över metadata-rader
         if (line.startsWith('---') || line.startsWith('+++')) {
             continue;
         }
 
-        // Hantera kommentarer för nuvarande position
-        if (!processedPositions.has(position)) {
-            const commentsForPosition = comments.filter(c => c.position === position);
-            if (commentsForPosition.length > 0) {
-                validComments.push(...commentsForPosition);
-                processedPositions.add(position);
-            }
+        // Hoppa över hunk-huvuden
+        if (line.startsWith('@@')) {
+            continue;
         }
 
-        // Uppdatera position baserat på radtyp
         if (isInDiffSection) {
             if (line.startsWith('+')) {
+                diffPositions.push({ position: position, type: 'add', line });
                 position++;
             } else if (line.startsWith('-')) {
-                // Borttagna rader påverkar inte position
-                continue;
+                diffPositions.push({ position: position, type: 'remove', line });
+                position++;  // Nu ökar vi position även för borttagna rader
             } else {
-                // Kontextrader (utan prefix) räknas också
+                diffPositions.push({ position: position, type: 'context', line });
                 position++;
+            }
+        }
+    }
+
+    // Matcha kommentarer med rätt position och side
+    for (const comment of comments) {
+        if (!processedPositions.has(comment.position)) {
+            const diffPosition = diffPositions.find(dp => dp.position === comment.position);
+            if (diffPosition) {
+                const updatedComment = {
+                    ...comment,
+                    side: diffPosition.type === 'remove' ? 'LEFT' : 'RIGHT'
+                };
+                validComments.push(updatedComment);
+                processedPositions.add(comment.position);
             }
         }
     }

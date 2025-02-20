@@ -38,7 +38,7 @@ export class GitHubClient {
         }
     }
 
-    async createReview(prNumber: number, comments: Array<{ path: string; position: number; body: string }>) {
+    async createReview(prNumber: number, comments: Array<{ path: string; position: number; body: string; side?: 'LEFT' | 'RIGHT' }>) {
         try {
             await this.octokit.pulls.createReview({
                 owner: this.owner,
@@ -46,7 +46,11 @@ export class GitHubClient {
                 pull_number: prNumber,
                 body: "Here's some friendly feedback from your AI PR bot! 😊",
                 event: "COMMENT",
-                comments: comments
+                comments: comments.map(({ path, position, body }) => ({
+                    path,
+                    position,
+                    body
+                }))
             });
         } catch (error) {
             console.error('Error creating review:', error);
