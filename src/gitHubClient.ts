@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 

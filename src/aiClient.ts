@@ -31,6 +31,8 @@ export class AIClient {
                         - 'I wonder if we could...'
                         - 'What do you think about...'
                         - 'This looks great, but maybe we could...'
+                        
+                        Add emojis to your comments to make them more engaging.
     
                         Respond as a JSON object with an array called 'inlineComments', where each comment has:
                           [
