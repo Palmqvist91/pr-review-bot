@@ -1,7 +1,7 @@
 {
-  "name": "@palmqvist91/pr-review-bot",
-  "version": "1.0.3",
-  "description": "A GitHub bot that reviews pull requests and provides feedback",
+  "name": "pr-review-bot",
+  "version": "1.0.0",
+  "description": "A GitHub PR review bot that reviews pull requests and provides feedback",
   "main": "dist/index.js",
   "bin": {
     "pr-review-bot": "dist/index.js"
@@ -12,13 +12,6 @@
     "review": "node dist/index.js",
     "prepublishOnly": "npm run build",
     "dev": "ts-node src/index.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Palmqvist91/pr-review-bot.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "keywords": [
     "github",

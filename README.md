@@ -1,5 +1,9 @@
 # PR Review Bot
 
+## Release notes (1.0.0)
+
+- Updated README including instructions for using the bot with a GitHub App.
+
 ## Description
 
 PR Review Bot is a GitHub bot that automatically reviews pull requests and provides feedback using OpenAI's GPT-4. The bot is designed to focus on critical issues that may cause bugs, performance problems, or maintenance issues, and avoids minor style issues.
@@ -12,40 +16,45 @@ PR Review Bot is a GitHub bot that automatically reviews pull requests and provi
 
 ## Installation
 
-### Install from GitHub Packages
+Ensure you have Node.js installed.
 
-To install the package from GitHub Packages, ensure you have configured your `.npmrc` file to authenticate against GitHub Packages. Add the following to your `.npmrc`:
-
-```
-@palmqvist91:registry=https://npm.pkg.github.com/
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
-```
-
-Then you can install the package with:
+To install the package from npm, use the following command:
 
 ```bash
-npm install @palmqvist91/pr-review-bot@latest
+npm install pr-review-bot@latest
 ```
 
-## Usage
+## Using PR Review Bot with a GitHub App
 
-1. Set the required environment variables in a `.env` file:
+To use PR Review Bot, you need to create and configure your own GitHub App. Follow these steps:
+
+1. **Create a GitHub App**:
+   - Go to `Settings > Developer settings > GitHub Apps` on GitHub.
+   - Click **New GitHub App**, and fill in the details:
+     - **App name**: e.g., "MyPRReviewBot"
+     - **Homepage URL**: Your GitHub repository or website (e.g., `https://github.com/Palmqvist91/pr-review-bot`).
+     - **Permissions**:
+       - **Pull Requests**: Read and write
+       - **Contents**: Read
+       - **Metadata**: Read
+     - **Subscribe to events**: Select `Pull Request` and `Push` (optional).
+   - Generate a private key and note the App ID.
+
+2. **Install the App**:
+   - Install the app in your repository via `Settings > Integrations and services > GitHub Apps`, or use the GitHub API to install it programmatically.
+   - After installation, note the `Installation ID` for your repository.
+
+3. **Configure Environment Variables**:
+   - Set the following environment variables in your workflow or `.env` file:
+
    ```
    GH_APP_ID=your_github_app_id
    GH_APP_PRIVATE_KEY=your_private_key
    GH_INSTALLATION_ID=your_installation_id
    OPENAI_API_KEY=your_openai_api_key
-   REPO_OWNER=your_repo_owner
-   REPO_NAME=your_repo_name
    ```
 
-2. Run the bot locally:
-   ```bash
-   npm run dev
-   ```
-
-3. To run as a GitHub Action, ensure your `.github/workflows/pr-review.yml` is correctly configured.
-
+4. Create a GitHub Actions workflow in your repository.
 
 ```yaml
 
@@ -65,15 +74,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://npm.pkg.github.com/'
 
       - name: Install PR Review Bot
-        run: npm install @palmqvist91/pr-review-bot@latest
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication against GitHub Packages use your PAT token
+        run: npm install pr-review-bot@latest
 
       - name: Run PR Review Bot
         run: npx pr-review-bot review ${{ github.event.pull_request.number }}
@@ -86,10 +92,6 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
 
 ```
-
-## Contributing
-
-We welcome contributions! Please open an issue or submit a pull request.
 
 ## License
 

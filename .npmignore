@@ -1,0 +1,22 @@
+# Ignorera TypeScript source code, tests, and local configuration files
+src/
+tests/
+coverage/
+.vscode/
+.env*
+jest.config.js
+jest.setup.ts
+tailwind.config.ts
+tsconfig.json
+node_modules/
+
+# Ignore log files and OS-specific files
+*.log
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore build-related files (if not needed in the package)
+dist/**/*.map
