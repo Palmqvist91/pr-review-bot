@@ -1,9 +1,8 @@
 # PR Review Bot
 
-## Release notes (1.0.0)
+## Release notes (1.0.2)
 
 - Updated README including instructions for using the bot with a GitHub App.
-
 ## Description
 
 PR Review Bot is a GitHub bot that automatically reviews pull requests and provides feedback using OpenAI's GPT-4. The bot is designed to focus on critical issues that may cause bugs, performance problems, or maintenance issues, and avoids minor style issues.
