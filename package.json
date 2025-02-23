@@ -1,26 +1,48 @@
 {
-  "name": "pr-review-bot",
+  "name": "@palmqvist91/pr-review-bot",
   "version": "1.0.0",
+  "description": "A GitHub bot that reviews pull requests and provides feedback",
   "main": "dist/index.js",
+  "bin": {
+    "pr-review-bot": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/index.ts",
-    "review": "ts-node src/index.ts"
+    "start": "node dist/index.js",
+    "review": "node dist/index.js",
+    "prepublishOnly": "npm run build",
+    "dev": "ts-node src/index.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Palmqvist91/pr-review-bot.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "keywords": [
+    "github",
+    "bot",
+    "pr",
+    "review"
+  ],
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
-    "axios": "^1.7.9",
-    "dotenv": "^16.4.7",
-    "openai": "^4.85.1",
-    "@octokit/rest": "^19.0.7",
-    "@octokit/auth-app": "^4.0.9"
+    "axios": "1.7.9",
+    "dotenv": "16.4.7",
+    "openai": "4.85.1",
+    "@octokit/rest": "19.0.7",
+    "@octokit/auth-app": "4.0.9"
   },
   "devDependencies": {
-    "@types/node": "^22.13.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
-  }
+    "@types/node": "22.13.4",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.3"
+  },
+  "author": "PrHiGo",
+  "license": "MIT"
 }

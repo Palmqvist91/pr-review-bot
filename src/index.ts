@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import dotenv from 'dotenv';
 import { GitHubClient } from './services/gitHubClient.service';
 import { AIClient } from './services/aiClient.service';
