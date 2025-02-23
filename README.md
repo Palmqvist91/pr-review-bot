@@ -24,7 +24,7 @@ To install the package from GitHub Packages, ensure you have configured your `.n
 Then you can install the package with:
 
 ```bash
-npm install @palmqvist91/pr-review-bot@1.0.0
+npm install @palmqvist91/pr-review-bot@latest
 ```
 
 ## Usage
@@ -71,9 +71,9 @@ jobs:
           registry-url: 'https://npm.pkg.github.com/'
 
       - name: Install PR Review Bot
-        run: npm install @palmqvist91/pr-review-bot
+        run: npm install @palmqvist91/pr-review-bot@latest
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication against GitHub Packages use your PAT token
 
       - name: Run PR Review Bot
         run: npx pr-review-bot review ${{ github.event.pull_request.number }}

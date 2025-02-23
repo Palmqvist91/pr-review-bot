@@ -1,6 +1,6 @@
 {
   "name": "@palmqvist91/pr-review-bot",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A GitHub bot that reviews pull requests and provides feedback",
   "main": "dist/index.js",
   "bin": {
