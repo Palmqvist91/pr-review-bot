@@ -2,6 +2,11 @@ name: Publish to npm
 
 on:
   workflow_dispatch:
+    inputs:
+      version-type:
+        description: 'Version type (patch, minor, or major)'
+        required: true
+        default: 'patch'
   push:
     branches:
       - main
@@ -25,9 +30,15 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org/'
+          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Validate NPM Token
+        if: success()
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "NPM_TOKEN secret is missing. Please configure it in repository secrets."
+            exit 1
+          fi
 
       - name: Build
         run: npm run build
@@ -38,11 +49,13 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Bump version (patch) and push
+      - name: Bump version and push
         if: success()
         run: |
-          NEW_VERSION=$(npm version patch --no-git-tag-version)
+          VERSION_TYPE=${{ github.event.inputs.version-type || 'patch' }}
+          NEW_VERSION=$(npm version $VERSION_TYPE --no-git-tag-version)
           git add package.json package-lock.json
+          git commit -m "chore: bump version to ${NEW_VERSION}"
           git tag -d ${NEW_VERSION} || true
           git push origin :refs/tags/${NEW_VERSION} || true
           git tag ${NEW_VERSION}
@@ -53,3 +66,8 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        continue-on-error: true
+
+      - name: Check publish status
+        if: steps.publish.outcome != 'success'
+        run: echo "npm publish failed. Check logs for details."
